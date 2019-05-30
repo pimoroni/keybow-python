@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 from spidev import SpiDev
+import time
 
 
 __version__ = '0.0.1'
@@ -20,6 +21,11 @@ KEYS = [
     (26, 8)
 ]
 
+MINI_KEYS = [
+    (17, 0),
+    (22, 1),
+    (6, 2)
+]
 
 callbacks = [None for key in KEYS]
 pins = [key[0] for key in KEYS]
@@ -37,7 +43,12 @@ def set_led(index, r, g, b):
 
     """
     index = leds.index(index)
-    buf[index] = [r, g, b]
+    buf[index][0] = r
+    buf[index][1] = g
+    buf[index][2] = b
+
+
+set_pixel = set_led
 
 
 def show():
@@ -49,17 +60,18 @@ def show():
         _buf.append(b)
         _buf.append(g)
         _buf.append(r)
-    # End of frame, 7 empty bytes
-    _buf += [0b00000000 for _ in range(7)]
-    spi.xfer(_buf)
+    # End of frame, 4 empty bytes
+    _buf += [0b00000000 for _ in range(4)]
+    spi.xfer2(_buf)
 
 
-def handle_keypress(pin):
+def _handle_keypress(pin):
+    time.sleep(0.01)
     state = GPIO.input(pin)
     i = pins.index(pin)
     callback = callbacks[i]
     if callback is not None and callable(callback):
-        callback(i, state)
+        callback(i, not state)
 
 
 def on(index=None, handler=None):
@@ -73,6 +85,8 @@ def on(index=None, handler=None):
             index = list(index)
         except TypeError:
             index = [index]
+    else:
+        index = range(len(KEYS))
 
     if handler is None:
         def decorate(handler):
@@ -85,7 +99,8 @@ def on(index=None, handler=None):
 
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(pins, GPIO.INPUT, pull_up_down=GPIO.PUD_UP)
-GPIO.add_event_detect(pins, GPIO.PISING, callback=handle_keypress, bouncetime=50)
+GPIO.setup(pins, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+for pin in pins:
+    GPIO.add_event_detect(pin, GPIO.BOTH, callback=_handle_keypress, bouncetime=200)
 
 spi.open(0, 0)
