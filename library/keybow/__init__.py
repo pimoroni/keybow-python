@@ -1,4 +1,6 @@
 import RPi.GPIO as GPIO
+from spidev import SpiDev
+
 
 __version__ = '0.0.1'
 
@@ -22,6 +24,34 @@ KEYS = [
 callbacks = [None for key in KEYS]
 pins = [key[0] for key in KEYS]
 leds = [key[1] for key in KEYS]
+buf = [[0, 0, 0, 0] for key in KEYS]
+
+spi = SpiDev()
+
+
+def set_led(index, r, g, b):
+    """Set an led.
+
+    :param index: 0-based index of key to set the LED for
+    :param r, g, b: amount of Red, Green and Blue (0-255)
+
+    """
+    index = leds.index(index)
+    buf[index] = [r, g, b]
+
+
+def show():
+    # Start of frame, 4 empty bytes
+    _buf = [0b00000000 for _ in range(4)]
+    for rgbbr in buf:
+        r, g, b, br = rgbbr
+        _buf.append(0b11100000 | br)   # Start of LED frame, 0b11100000 + brightness
+        _buf.append(b)
+        _buf.append(g)
+        _buf.append(r)
+    # End of frame, 7 empty bytes
+    _buf += [0b00000000 for _ in range(7)]
+    spi.xfer(_buf)
 
 
 def handle_keypress(pin):
@@ -57,3 +87,5 @@ def on(index=None, handler=None):
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(pins, GPIO.INPUT, pull_up_down=GPIO.PUD_UP)
 GPIO.add_event_detect(pins, GPIO.PISING, callback=handle_keypress, bouncetime=50)
+
+spi.open(0, 0)

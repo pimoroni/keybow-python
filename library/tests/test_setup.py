@@ -2,16 +2,21 @@ import mock
 import sys
 
 
-def test_setup():
+def _mock():
+    sys.modules['spidev'] = mock.Mock()
+    sys.modules['spidev.SpiDev'] = mock.Mock()
     sys.modules['RPi'] = mock.Mock()
     sys.modules['RPi.GPIO'] = mock.Mock()
+
+
+def test_setup():
+    _mock()
     import keybow
     del keybow
 
 
 def test_handlers():
-    sys.modules['RPi'] = mock.Mock()
-    sys.modules['RPi.GPIO'] = mock.Mock()
+    _mock()
     import keybow
 
     @keybow.on(0)
@@ -33,3 +38,10 @@ def test_handlers():
     def handle_input_d(index, state):
         pass
     assert keybow.callbacks[3] is not None
+
+
+def test_leds():
+    _mock()
+    import keybow
+
+    keybow.set_led(0, 255, 0, 0)
