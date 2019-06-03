@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import keybow
-import signal
 import time
 
 
@@ -11,5 +10,12 @@ def handle_key(index, state):
         index,
         'pressed' if state else 'released'))
 
+    if state:
+        keybow.set_led(index, 255, 0, 0)
+    else:
+        keybow.set_led(index, 0, 0, 0)
 
-signal.pause()
+
+while True:
+    keybow.show()
+    time.sleep(1.0 / 60.0)
