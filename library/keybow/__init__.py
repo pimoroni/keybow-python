@@ -30,7 +30,7 @@ MINI_KEYS = [
 callbacks = [None for key in KEYS]
 pins = [key[0] for key in KEYS]
 leds = [key[1] for key in KEYS]
-buf = [[0, 0, 0, 0] for key in KEYS]
+buf = [[0, 0, 0, 1.0] for key in KEYS]
 states = [True for key in KEYS]
 
 spi = SpiDev()
@@ -43,7 +43,7 @@ def set_led(index, r, g, b):
     :param r, g, b: amount of Red, Green and Blue (0-255)
 
     """
-    index = leds.index(index)
+    index = leds[index]
     buf[index][0] = r
     buf[index][1] = g
     buf[index][2] = b
@@ -54,15 +54,16 @@ set_pixel = set_led
 
 def show():
     # Start of frame, 4 empty bytes
-    _buf = [0b00000000 for _ in range(4)]
+    _buf = [0b00000000 for _ in range(8)]
     for rgbbr in buf:
         r, g, b, br = rgbbr
+        br = int(br * 31)
         _buf.append(0b11100000 | br)   # Start of LED frame, 0b11100000 + brightness
         _buf.append(b)
         _buf.append(g)
         _buf.append(r)
     # End of frame, 4 empty bytes
-    _buf += [0b00000000 for _ in range(4)]
+    _buf += [0b00000000 for _ in range(1)]
     spi.xfer2(_buf)
 
 
@@ -112,3 +113,4 @@ for pin in pins:
     GPIO.add_event_detect(pin, GPIO.BOTH, callback=_handle_keypress, bouncetime=1)
 
 spi.open(0, 0)
+spi.max_speed_hz = 1000000
