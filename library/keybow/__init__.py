@@ -77,6 +77,7 @@ set_pixel = set_led
 
 def set_all(r, g, b):
     """Set all Keybow LEDs."""
+    setup()
     for i in range(len(leds)):
         set_led(i, r, g, b)
 
@@ -111,7 +112,7 @@ def _handle_keypress(pin):
     # Suppress any repeated key events
     if state == states[i]:
         return
-        
+
     states[i] = state
 
     callback = callbacks[i]
@@ -142,6 +143,7 @@ def on(index=None, handler=None):
 
     for i in index:
         callbacks[i] = handler
+
 
 def _on_exit():
     clear()
