@@ -1,12 +1,13 @@
 import RPi.GPIO as GPIO
 from spidev import SpiDev
 import time
+import atexit
 
 
 __version__ = '0.0.1'
 
 
-KEYS = [
+FULL = [
     (17, 3),
     (27, 7),
     (23, 11),
@@ -21,19 +22,37 @@ KEYS = [
     (26, 8)
 ]
 
-MINI_KEYS = [
+MINI = [
     (17, 0),
     (22, 1),
     (6, 2)
 ]
 
-callbacks = [None for key in KEYS]
-pins = [key[0] for key in KEYS]
-leds = [key[1] for key in KEYS]
-buf = [[0, 0, 0, 1.0] for key in KEYS]
-states = [True for key in KEYS]
+_is_setup = False
 
-spi = SpiDev()
+
+def setup(keymap=FULL):
+    global _is_setup, spi, callbacks, pins, leds, buf, states
+    if _is_setup:
+        return
+    _is_setup = True
+
+    callbacks = [None for key in keymap]
+    pins = [key[0] for key in keymap]
+    leds = [key[1] for key in keymap]
+    buf = [[0, 0, 0, 1.0] for key in keymap]
+    states = [True for key in keymap]
+
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(pins, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    for pin in pins:
+        GPIO.add_event_detect(pin, GPIO.BOTH, callback=_handle_keypress, bouncetime=1)
+
+    spi = SpiDev()
+    spi.open(0, 0)
+    spi.max_speed_hz = 1000000
+
+    atexit.register(_on_exit)
 
 
 def set_led(index, r, g, b):
@@ -43,16 +62,33 @@ def set_led(index, r, g, b):
     :param r, g, b: amount of Red, Green and Blue (0-255)
 
     """
-    index = leds[index]
-    buf[index][0] = r
-    buf[index][1] = g
-    buf[index][2] = b
+    setup()
+    try:
+        index = leds[index]
+        buf[index][0] = r
+        buf[index][1] = g
+        buf[index][2] = b
+    except IndexError:
+        raise IndexError("LED {} is out of range!".format(index))
 
 
 set_pixel = set_led
 
 
+def set_all(r, g, b):
+    """Set all Keybow LEDs."""
+    for i in range(len(leds)):
+        set_led(i, r, g, b)
+
+
+def clear():
+    """Clear Keybow LEDs."""
+    set_all(0, 0, 0)
+
+
 def show():
+    """Update LEDs on Keybow."""
+    setup()
     # Start of frame, 4 empty bytes
     _buf = [0b00000000 for _ in range(8)]
     for rgbbr in buf:
@@ -89,13 +125,14 @@ def on(index=None, handler=None):
     Your handler should accept an index and a state argument.
 
     """
+    setup()
     if index is not None:
         try:
             index = list(index)
         except TypeError:
             index = [index]
     else:
-        index = range(len(KEYS))
+        index = range(len(callbacks))
 
     if handler is None:
         def decorate(handler):
@@ -106,11 +143,6 @@ def on(index=None, handler=None):
     for i in index:
         callbacks[i] = handler
 
-
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(pins, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-for pin in pins:
-    GPIO.add_event_detect(pin, GPIO.BOTH, callback=_handle_keypress, bouncetime=1)
-
-spi.open(0, 0)
-spi.max_speed_hz = 1000000
+def _on_exit():
+    clear()
+    show()
