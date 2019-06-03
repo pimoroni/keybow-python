@@ -24,6 +24,6 @@ Latest/development library from GitHub:
 .. |Coverage Status| image:: https://coveralls.io/repos/github/pimoroni/keybow-python/badge.svg?branch=master
    :target: https://coveralls.io/github/pimoroni/keybow-python?branch=master
 .. |PyPi Package| image:: https://img.shields.io/pypi/v/keybow.svg
-   :target: https://pypi.python.org/pypi/keybow-python
+   :target: https://pypi.python.org/pypi/keybow
 .. |Python Versions| image:: https://img.shields.io/pypi/pyversions/keybow.svg
-   :target: https://pypi.python.org/pypi/keybow-python
+   :target: https://pypi.python.org/pypi/keybow

@@ -3,8 +3,8 @@
 
 [![Build Status](https://travis-ci.com/pimoroni/keybow-python.svg?branch=master)](https://travis-ci.com/pimoroni/keybow-python)
 [![Coverage Status](https://coveralls.io/repos/github/pimoroni/keybow-python/badge.svg?branch=master)](https://coveralls.io/github/pimoroni/keybow-python?branch=master)
-[![PyPi Package](https://img.shields.io/pypi/v/keybow.svg)](https://pypi.python.org/pypi/keybow-python)
-[![Python Versions](https://img.shields.io/pypi/pyversions/keybow.svg)](https://pypi.python.org/pypi/keybow-python)
+[![PyPi Package](https://img.shields.io/pypi/v/keybow.svg)](https://pypi.python.org/pypi/keybow)
+[![Python Versions](https://img.shields.io/pypi/pyversions/keybow.svg)](https://pypi.python.org/pypi/keybow)
 
 # Installing
 
