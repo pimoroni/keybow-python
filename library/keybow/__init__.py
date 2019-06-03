@@ -31,6 +31,7 @@ callbacks = [None for key in KEYS]
 pins = [key[0] for key in KEYS]
 leds = [key[1] for key in KEYS]
 buf = [[0, 0, 0, 0] for key in KEYS]
+states = [True for key in KEYS]
 
 spi = SpiDev()
 
@@ -66,9 +67,16 @@ def show():
 
 
 def _handle_keypress(pin):
-    time.sleep(0.01)
+    time.sleep(0.005)
     state = GPIO.input(pin)
     i = pins.index(pin)
+
+    # Suppress any repeated key events
+    if state == states[i]:
+        return
+        
+    states[i] = state
+
     callback = callbacks[i]
     if callback is not None and callable(callback):
         callback(i, not state)
@@ -101,6 +109,6 @@ def on(index=None, handler=None):
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(pins, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 for pin in pins:
-    GPIO.add_event_detect(pin, GPIO.BOTH, callback=_handle_keypress, bouncetime=200)
+    GPIO.add_event_detect(pin, GPIO.BOTH, callback=_handle_keypress, bouncetime=1)
 
 spi.open(0, 0)
