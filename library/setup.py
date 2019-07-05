@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+# -*- coding: utf-8 -*-
 """
 Copyright (c) 2016 Pimoroni
 
@@ -22,32 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup, __version__
+from pkg_resources import parse_version
 
-classifiers = ['Development Status :: 4 - Beta',
-               'Operating System :: POSIX :: Linux',
-               'License :: OSI Approved :: MIT License',
-               'Intended Audience :: Developers',
-               'Programming Language :: Python :: 2.6',
-               'Programming Language :: Python :: 2.7',
-               'Programming Language :: Python :: 3',
-               'Topic :: Software Development',
-               'Topic :: System :: Hardware']
+minimum_version = parse_version('30.4.0')
+
+if parse_version(__version__) < minimum_version:
+    raise RuntimeError("Package setuptools must be at least version {}".format(minimum_version))
 
 setup(
-    name='keybow',
-    version='0.0.1',
-    author='Philip Howard',
-    author_email='phil@pimoroni.com',
-    description="""Keybow 3 and 12 key, backlit mechanical keyboard add-ons for the Raspberry Pi""",
-    long_description=open('README.rst').read() + '\n' + open('CHANGELOG.txt').read(),
-    license='MIT',
-    keywords='Raspberry Pi',
-    url='http://www.pimoroni.com',
-    project_urls={'GitHub': 'https://www.github.com/pimoroni/{{LIBNAME}}-python'},
-    classifiers=classifiers,
-    packages=['keybow']
+    packages=['keybow'],
+    install_requires=['setuptools>={}'.format(minimum_version)]
 )
