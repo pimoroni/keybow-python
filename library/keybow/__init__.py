@@ -90,7 +90,7 @@ def clear():
 def show():
     """Update LEDs on Keybow."""
     setup()
-    # Start of frame, 4 empty bytes
+    # Start of frame
     _buf = [0b00000000 for _ in range(8)]
     for rgbbr in buf:
         r, g, b, br = rgbbr
@@ -99,8 +99,8 @@ def show():
         _buf.append(b)
         _buf.append(g)
         _buf.append(r)
-    # End of frame, 4 empty bytes
-    _buf += [0b00000000 for _ in range(1)]
+    # End of frame - amended to 4 * 0b11111111 for #2
+    _buf += [0b11111111 for _ in range(4)]
     spi.xfer2(_buf)
 
 
