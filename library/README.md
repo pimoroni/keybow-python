@@ -20,6 +20,11 @@ Latest/development library from GitHub:
 
 
 # Changelog
+0.0.3
+-----
+
+* Bug: Fixed end-of-frame for driving LEDs
+
 0.0.2
 -----
 
