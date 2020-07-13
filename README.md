@@ -1,4 +1,5 @@
 # Keybow
+
 ## 3 and 12 key, backlit mechanical keyboard add-ons for the Raspberry Pi
 
 [![Build Status](https://travis-ci.com/pimoroni/keybow-python.svg?branch=master)](https://travis-ci.com/pimoroni/keybow-python)
@@ -8,13 +9,24 @@
 
 # Installing
 
-Stable library from PyPi:
+## Stable library from PyPi
 
-* Just run `sudo pip install keybow`
+Enable SPI:
 
-Latest/development library from GitHub:
+```
+sudo raspi-config nonint do_spi 0
+```
+
+Install the library:
+
+```python
+python3 -m pip install keybow
+```
+
+You may need to use `sudo` (or optionally `python` in lieu of `python3`)
+
+## Latest/development library from GitHub:
 
 * `git clone https://github.com/pimoroni/keybow-python`
 * `cd keybow-python`
 * `sudo ./install.sh`
-
